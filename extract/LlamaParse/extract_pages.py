@@ -9,6 +9,7 @@ from llama_cloud_services import LlamaParse
 from openai import OpenAI
 
 openai_api_key = os.getenv("OPENAI_API_KEY")
+api_key = os.getenv("LLAMA_API_KEY")
 
 # Configure logging
 logging.basicConfig(
@@ -29,8 +30,8 @@ class LlamaParseLoader(BaseLoader):
     def __init__(
         self,
         pdf_path: str,
-        api_key: str,
         image_dir: str,
+        api_key: str = api_key,
         parse_mode: str = "parse_page_with_agent",
         model: str = "openai-gpt-4-1-mini",
         high_res_ocr: bool = True,
@@ -237,3 +238,23 @@ class LlamaParseLoader(BaseLoader):
         logger.info(f"Loaded {len(documents)} documents from PDF")
         return documents
 
+# Check whether your Llama Parse is working or not
+# Before running go to Command Prompt and set your OPENAI_API_KEY and LLAMA_API_KEY at project folder level and change pdf_path and image_dir
+# Then cd extract
+# Then cd LlamaParse
+# Then py extract_pages.py
+if __name__ == '__main__' :
+    logger.info("Starting example usage of LlamaParseLoader")
+    try:
+        loader = LlamaParseLoader(
+            pdf_path="D:/Learn-RAG-code-only/pdf_files/transformer.pdf",
+            describe_images=True,
+            image_dir="C:/Users/Sivakumar Keertipati/Desktop/RAG_PROJECT/extract_images"
+        )
+        documents = loader.load()
+        logger.info(f"Successfully loaded {len(documents)} documents")
+        # Print documents (for debugging; can be removed or replaced with logger)
+        for i, doc in enumerate(documents):
+            logger.debug(f"Document {i + 1}: {doc.page_content[:100]}... (Metadata: {doc.metadata})")
+    except Exception as e:
+        logger.error(f"Error in example usage: {e}")
