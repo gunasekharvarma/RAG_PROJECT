@@ -117,7 +117,7 @@ if __name__ == "__main__":
 
     vectorstore = OpenSearchStore(loader, titan_embeddings)
     vectorstore.store(
-        opensearch_url="https://search-guna-sekhar-jdvuj4ov6ku5qwxizcrdtz3vhy.aos.us-east-1.on.aws",
+        opensearch_url="https://search-guna-domain-dokyig3bsq3pjgjynjaggzoaqa.aos.us-east-1.on.aws",
         index_name="rag-test",
         http_auth=("admin", "Admin123$"),  # if fine-grained access control enabled
         use_ssl=True,
@@ -126,18 +126,19 @@ if __name__ == "__main__":
 
     # Testing whether the document is stored or not
     # Check if a specific index exists
-    if vectorstore.indices.exists("rag-test"):
-        print("Index exists ✅")
-    else:
-        print("Index Not Found ❌")
+    # if vectorstore.indices.exists("rag-test"):
+    #     print("Index exists ✅")
+    # else:
+    #     print("Index Not Found ❌")
 
-    count = vectorstore.count(index="rag-test")
-    print("Document count:", count["count"])
-
-    # Fetch first 5 docs
-    response = vectorstore.search(index="rag-test", body={"size": 5, "query": {"match_all": {}}})
-    for hit in response["hits"]["hits"]:
-        print(hit["_id"],hit["_source"])
+    # count = vectorstore.count(index="rag-test")
+    # print("Document count:", count["count"])
+    #
+    # # Fetch first 5 docs
+    # response = vectorstore.search(index="rag-test", body={"size": 5, "query": {"match_all": {}}})
+    # for hit in response["hits"]["hits"]:
+    #     print(hit["_id"],hit["_source"])
+    print("Open Search Index Creating complete")
 
 
 
