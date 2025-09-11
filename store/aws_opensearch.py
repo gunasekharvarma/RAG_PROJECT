@@ -1,5 +1,7 @@
 import logging
-
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from embed.AmazonTitan.amazon_embed import TitanTextImageEmbeddings
 from extract.LlamaParse.extract_pages import LlamaParseLoader
 from store.base import StoreBase
@@ -59,7 +61,7 @@ class OpenSearchStore(StoreBase):
         try:
             vectorstore = OpenSearchVectorSearch.from_documents(
                 documents=self.docs,
-                embedding=self.embeddings.embed_query,  # Use embed_query as the embedding function
+                embedding=self.embeddings,  # Use embed_query as the embedding function
                 opensearch_url=opensearch_url,
                 index_name=index_name,
                 http_auth=http_auth,
@@ -106,7 +108,7 @@ class OpenSearchStore(StoreBase):
 
 if __name__ == "__main__":
     loader = LlamaParseLoader(
-        pdf_path="F:/Sai Work/Learn-RAG-code-only 2/Learn-RAG-code-only/pdf_files/transformer.pdf",
+        pdf_path="D:/Learn-RAG-code-only/pdf_files/transformer.pdf",
         describe_images=True,
         image_dir="C:/Users/Sivakumar Keertipati/Desktop/RAG_PROJECT/extract_images"
     )
@@ -115,12 +117,27 @@ if __name__ == "__main__":
 
     vectorstore = OpenSearchStore(loader, titan_embeddings)
     vectorstore.store(
-        opensearch_url="https://search-genai-1-7a3pnwfpd4md3hqwabav3cm3fy.aos.us-east-1.on.aws",
-        index_name="rag-test2",
+        opensearch_url="https://search-guna-sekhar-jdvuj4ov6ku5qwxizcrdtz3vhy.aos.us-east-1.on.aws",
+        index_name="rag-test",
         http_auth=("admin", "Admin123$"),  # if fine-grained access control enabled
         use_ssl=True,
         verify_certs=True
     )
 
     # Testing whether the document is stored or not
+    # Check if a specific index exists
+    if vectorstore.indices.exists("rag-test"):
+        print("Index exists ✅")
+    else:
+        print("Index Not Found ❌")
+
+    count = vectorstore.count(index="rag-test")
+    print("Document count:", count["count"])
+
+    # Fetch first 5 docs
+    response = vectorstore.search(index="rag-test", body={"size": 5, "query": {"match_all": {}}})
+    for hit in response["hits"]["hits"]:
+        print(hit["_id"],hit["_source"])
+
+
 
