@@ -24,17 +24,17 @@ COHERE_API_KEY = os.getenv('COHERE_API_KEY')
 
 app = FastAPI(title='RAG-API')
 
-# embeddings = TitanTextImageEmbeddings()
-# vectorstore_for_OSVS = OpenSearchVectorSearch(
-#         opensearch_url="https://search-guna-domain-dokyig3bsq3pjgjynjaggzoaqa.aos.us-east-1.on.aws",
-#         index_name='rag-test',
-#         embedding_function=embeddings,
-#         http_auth=("admin", "Admin123$")
-#     )
-# os_retriever = OpenSearchRetriever(
-#     vectorstore = vectorstore_for_OSVS,
-#     top_k=4
-# )
+embeddings = TitanTextImageEmbeddings()
+vectorstore_for_OSVS = OpenSearchVectorSearch(
+        opensearch_url="https://search-guna-domain-dokyig3bsq3pjgjynjaggzoaqa.aos.us-east-1.on.aws",
+        index_name='rag-test-api',
+        embedding_function=embeddings,
+        http_auth=("admin", "Admin123$")
+    )
+os_retriever = OpenSearchRetriever(
+    vectorstore = vectorstore_for_OSVS,
+    top_k=4
+)
 
 reranked_retriever = RerankedRetriever(os_retriever,cohere_api_key=COHERE_API_KEY)
 
@@ -136,7 +136,6 @@ detailed_rag_chain = DetailedRAGChain(reranked_retriever, llm, rag_prompt)
 # Pydantic models
 class QueryRequest(BaseModel):
     query: str
-    index_name: str
     use_detailed_chain: bool = False
 
 
@@ -157,17 +156,6 @@ async def simple_rag(request: QueryRequest):
         Returns just the generated answer.
     """
     try:
-        embeddings = TitanTextImageEmbeddings()
-        vectorstore_for_OSVS = OpenSearchVectorSearch(
-            opensearch_url="https://search-guna-domain-dokyig3bsq3pjgjynjaggzoaqa.aos.us-east-1.on.aws",
-            index_name=request.index_name,
-            embedding_function=embeddings,
-            http_auth=("admin", "Admin123$")
-        )
-        os_retriever = OpenSearchRetriever(
-            vectorstore=vectorstore_for_OSVS,
-            top_k=4
-        )
         answer = rag_chain.invoke(request.query)
         return {'answer': answer}
     except Exception as e:
